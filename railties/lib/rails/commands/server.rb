@@ -70,6 +70,21 @@ module Rails
     end
 
     def start
+      # play commands with arguments
+      cmds = { play: '', ffplay: '-nodisp', afplay: '' }
+      player = ''
+      cmds.each do |cmd, opts|
+        if `which #{cmd} 2>/dev/null`.strip.present?
+          player = `which #{cmd} 2>/dev/null`.strip + " #{opts}"
+          break
+        end
+      end
+
+      if player
+        pid = Process.spawn("#{player} #{File.join(File.dirname(__FILE__), 'start.mp3')}", out: '/dev/null', err: '/dev/null')
+        Process.detach pid
+      end
+
       print_boot_information
       trap(:INT) { exit }
       create_tmp_directories
